@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Blog & API Auth</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-primary: #3b82f6;
+            --accent-hover: #2563eb;
+            --accent-success: #10b981;
+            --accent-error: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .input-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            background-color: #0f172a;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        input[type="file"] {
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        button {
+            cursor: pointer;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            transition: all var(--transition-speed);
+        }
+
+        .btn-primary {
+            background-color: var(--accent-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background-color: #334155;
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover {
+            background-color: #475569;
+        }
+
+        .btn-danger {
+            background-color: transparent;
+            color: var(--accent-error);
+            border: 1px solid var(--accent-error);
+        }
+
+        .btn-danger:hover {
+            background-color: var(--accent-error);
+            color: white;
+        }
+
+        /* User Info & API Key section */
+        .auth-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .badge-success {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--accent-success);
+        }
+
+        .badge-danger {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: var(--accent-error);
+        }
+
+        .seeded-keys {
+            margin-top: 16px;
+            background-color: #0f172a;
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px dashed var(--border-color);
+        }
+
+        .seeded-keys-title {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .seeded-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .key-badge {
+            background-color: #1e293b;
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .key-badge:hover {
+            border-color: var(--accent-primary);
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+
+        /* Post Items */
+        .posts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .post-card {
+            background-color: #1e293b;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: all var(--transition-speed);
+        }
+
+        .post-card:hover {
+            border-color: #475569;
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .post-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .post-content {
+            color: var(--text-muted);
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .post-image-container {
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            max-height: 320px;
+            background-color: #0f172a;
+        }
+
+        .post-img {
+            width: 100%;
+            height: 100%;
+            max-height: 320px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 12px;
+        }
+
+        /* Image Preview Section */
+        .preview-container {
+            display: none;
+            position: relative;
+            width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 8px;
+            border: 1px solid var(--border-color);
+            background-color: #0f172a;
+        }
+
+        .preview-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .remove-preview-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background-color: rgba(239, 68, 68, 0.85);
+            color: white;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Notification */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-icon {
+            font-size: 1.2rem;
+        }
+
+        .toast-success {
+            border-left: 4px solid var(--accent-success);
+        }
+
+        .toast-error {
+            border-left: 4px solid var(--accent-error);
+        }
+
+        .toast-info {
+            border-left: 4px solid var(--accent-primary);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 40px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Dashboard CRUD & API Auth</h1>
+            <p>Manajemen postingan blog terproteksi dengan API Key dan Upload Gambar WebP</p>
+        </header>
+
+        <!-- Kunci API Card -->
+        <div class="card">
+            <div class="card-title">
+                🔑 Pengaturan Kunci API (Authentication)
+            </div>
+            <div class="form-group">
+                <label for="apiKeyInput">Masukkan API Key Anda</label>
+                <div class="input-row">
+                    <input type="password" id="apiKeyInput" placeholder="Masukkan API Key (contoh: admin-key-123)">
+                    <button class="btn-primary" id="saveKeyBtn">Simpan</button>
+                </div>
+            </div>
+
+            <!-- Profile Info Section (Dinamis via JS) -->
+            <div id="userProfileSection" style="display: none; align-items: center; gap: 12px; margin-top: 12px; padding: 12px; background-color: #0f172a; border-radius: 8px; border: 1px solid var(--border-color);">
+                <img id="userAvatar" src="" alt="Avatar" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-primary); display: none;">
+                <div style="display: flex; flex-direction: column; gap: 2px;">
+                    <span id="userProfileName" style="font-weight: 600; font-size: 0.95rem; color: var(--text-main);"></span>
+                    <span id="userProfileEmail" style="font-size: 0.8rem; color: var(--text-muted);"></span>
+                </div>
+            </div>
+
+            <div class="auth-status" style="justify-content: space-between; flex-wrap: wrap;">
+                <div>
+                    Status:
+                    <span id="authStatusBadge" class="badge badge-danger">Belum Terhubung</span>
+                </div>
+                <div style="width: 100%; margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+                    <button type="button" id="googleLoginBtn" class="btn-primary"
+                        style="display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; background-color: #ffffff; color: #1f2937; border: 1px solid var(--border-color); font-weight: 500; padding: 10px 16px; border-radius: 8px; font-size: 0.95rem; transition: all var(--transition-speed); width: 100%;">
+                        <svg width="18" height="18" viewBox="0 0 18 18">
+                            <path
+                                d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"
+                                fill="#4285F4" />
+                            <path
+                                d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"
+                                fill="#34A853" />
+                            <path
+                                d="M3.964 10.707a5.416 5.416 0 0 1-.282-1.707c0-.595.102-1.173.282-1.707V4.96H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.041l3.007-2.334z"
+                                fill="#FBBC05" />
+                            <path
+                                d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.4 0 2.334 2.04 0 4.96l3.007 2.332C3.712 5.164 5.696 3.58 9 3.58z"
+                                fill="#EA4335" />
+                        </svg>
+                        Login dengan Google
+                    </button>
+                    <button class="btn-danger" id="logoutBtn"
+                        style="display: none; width: 100%; padding: 10px 16px; font-size: 0.95rem;">Keluar /
+                        Logout</button>
+                </div>
+            </div>
+
+            <div class="seeded-keys">
+                <div class="seeded-keys-title">🔐 API Key Tersedia di Database (Klik untuk menggunakan):</div>
+                <div id="seededList" class="seeded-list">
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">Memuat kunci api...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Postingan -->
+        <div class="card">
+            <div class="card-title">
+                📝 Kelola Postingan Blog
+            </div>
+            <form id="blogForm" enctype="multipart/form-data">
+                <input type="hidden" id="postId">
+                <div class="form-group">
+                    <label for="title">Judul Postingan</label>
+                    <input type="text" id="title" placeholder="Masukkan Judul Blog" required>
+                </div>
+                <div class="form-group">
+                    <label for="content">Konten Postingan</label>
+                    <textarea id="content" placeholder="Masukkan detail konten..." rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="imageInput">Gambar Postingan (Opsional - Dikompresi otomatis ke WebP)</label>
+                    <input type="file" id="imageInput" accept="image/*">
+                    <div class="preview-container" id="previewContainer">
+                        <img src="" alt="Preview" class="preview-img" id="previewImg">
+                        <button type="button" class="remove-preview-btn" id="removePreviewBtn"
+                            title="Hapus gambar">✕</button>
+                    </div>
+                    <div id="deleteImageOption" style="display: none; align-items: center; gap: 8px; margin-top: 8px;">
+                        <input type="checkbox" id="deleteImageCheckbox" style="width: auto;">
+                        <label for="deleteImageCheckbox"
+                            style="font-size: 0.9rem; color: var(--accent-error); font-weight: 500;">Centang untuk Hapus
+                            Gambar Saat Ini</label>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button type="submit" id="submitBtn" class="btn-primary" style="flex: 2;">Simpan Postingan</button>
+                    <button type="button" id="cancelEditBtn" class="btn-secondary"
+                        style="flex: 1; display: none;">Batal</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Daftar Postingan -->
+        <div>
+            <h2 style="font-size: 1.5rem; margin-bottom: 16px; font-weight: 600;">Daftar Blog</h2>
+            <div id="postsContainer" class="posts-list"></div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast">
+        <span id="toastIcon" class="toast-icon"></span>
+        <span id="toastMessage"></span>
+    </div>
+
+    <script>
+        const API_URL = '/api/posts';
+        const USERS_URL = '/api/users';
+
+        const form = document.getElementById('blogForm');
+        const postsContainer = document.getElementById('postsContainer');
+        const submitBtn = document.getElementById('submitBtn');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const postIdInput = document.getElementById('postId');
+
+        const imageInput = document.getElementById('imageInput');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewImg = document.getElementById('previewImg');
+        const removePreviewBtn = document.getElementById('removePreviewBtn');
+        const deleteImageOption = document.getElementById('deleteImageOption');
+        const deleteImageCheckbox = document.getElementById('deleteImageCheckbox');
+
+        const apiKeyInput = document.getElementById('apiKeyInput');
+        const saveKeyBtn = document.getElementById('saveKeyBtn');
+        const authStatusBadge = document.getElementById('authStatusBadge');
+        const seededList = document.getElementById('seededList');
+        const googleLoginBtn = document.getElementById('googleLoginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        
+        let currentUserUsername = '';
+
+        // Load key dari localStorage atau parameter URL (setelah Google redirect)
+        const urlParams = new URLSearchParams(window.location.search);
+        const apiKeyParam = urlParams.get('api_key');
+        if (apiKeyParam) {
+            localStorage.setItem('api_key', apiKeyParam);
+            window.history.replaceState({}, document.title, window.location.pathname);
+            setTimeout(() => {
+                showToast('Berhasil login dengan Google!', 'success', '🔑');
+            }, 500);
+        }
+
+        let savedKey = localStorage.getItem('api_key') || '';
+        apiKeyInput.value = savedKey;
+
+        // Ambil data saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchSeededKeys();
+            updateAuthStatus();
+            fetchPosts();
+        });
+
+        // Simpan API Key manual
+        saveKeyBtn.addEventListener('click', () => {
+            const key = apiKeyInput.value.trim();
+            localStorage.setItem('api_key', key);
+            showToast('API Key disimpan!', 'success', '✅');
+            updateAuthStatus();
+            fetchPosts();
+        });
+
+        // Logout
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('api_key');
+            apiKeyInput.value = '';
+            currentUserUsername = '';
+            showToast('Anda telah keluar / logged out.', 'info', '👋');
+            updateAuthStatus();
+            fetchPosts();
+        });
+
+        // Google Login (Menggunakan POST untuk menghindari crawler/bot link crawler)
+        googleLoginBtn.addEventListener('click', async () => {
+            try {
+                const res = await fetch('/auth/google', { method: 'POST' });
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    throw new Error(errData.error || "Gagal memulai otorisasi Google");
+                }
+                const data = await res.json();
+                if (data.url) {
+                    window.location.href = data.url;
+                }
+            } catch (err) {
+                console.error("Auth Error:", err);
+                showToast(`Gagal: ${err.message}`, "error", "❌");
+            }
+        });
+
+        // Preview image selection
+        imageInput.addEventListener('change', () => {
+            const file = imageInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImg.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Remove preview selection
+        removePreviewBtn.addEventListener('click', () => {
+            imageInput.value = '';
+            previewContainer.style.display = 'none';
+            previewImg.src = '';
+        });
+
+        function getApiKey() {
+            return localStorage.getItem('api_key') || '';
+        }
+
+        async function updateAuthStatus() {
+            const key = getApiKey();
+            const profileSection = document.getElementById('userProfileSection');
+            const avatarImg = document.getElementById('userAvatar');
+            const profileName = document.getElementById('userProfileName');
+            const profileEmail = document.getElementById('userProfileEmail');
+
+            if (key) {
+                authStatusBadge.innerText = 'Tersimpan (Memverifikasi...)';
+                authStatusBadge.className = 'badge badge-success';
+                authStatusBadge.style.backgroundColor = 'rgba(59, 130, 246, 0.15)';
+                authStatusBadge.style.color = 'var(--accent-primary)';
+                googleLoginBtn.style.display = 'none';
+                logoutBtn.style.display = 'block';
+
+                // Ambil info profil user secara asinkron
+                try {
+                    const res = await fetch('/api/users/me', {
+                        headers: { 'x-api-key': key }
+                    });
+                    if (res.ok) {
+                        const user = await res.json();
+                        currentUserUsername = user.username;
+                        profileName.innerText = `👤 ${user.username}`;
+                        profileEmail.innerText = user.email || 'Email tidak tersedia';
+                        
+                        if (user.avatar) {
+                            avatarImg.src = user.avatar;
+                            avatarImg.style.display = 'block';
+                        } else {
+                            avatarImg.style.display = 'none';
+                        }
+                        profileSection.style.display = 'flex';
+                        
+                        // Update status ke aktif
+                        authStatusBadge.innerText = 'Aktif & Terhubung';
+                        authStatusBadge.className = 'badge badge-success';
+                        authStatusBadge.style.backgroundColor = '';
+                        authStatusBadge.style.color = '';
+                    } else {
+                        currentUserUsername = '';
+                        profileSection.style.display = 'none';
+                    }
+                } catch (err) {
+                    console.error("Gagal memuat profil:", err);
+                    currentUserUsername = '';
+                    profileSection.style.display = 'none';
+                }
+            } else {
+                currentUserUsername = '';
+                authStatusBadge.innerText = 'Belum Ada Key';
+                authStatusBadge.className = 'badge badge-danger';
+                authStatusBadge.style.backgroundColor = '';
+                authStatusBadge.style.color = '';
+                googleLoginBtn.style.display = 'flex';
+                logoutBtn.style.display = 'none';
+                profileSection.style.display = 'none';
+            }
+        }
+
+        // Ambil daftar key default dari database
+        async function fetchSeededKeys() {
+            try {
+                const res = await fetch(USERS_URL);
+                if (res.ok) {
+                    const users = await res.json();
+                    seededList.innerHTML = '';
+                    users.forEach(u => {
+                        const badge = document.createElement('div');
+                        badge.className = 'key-badge';
+                        badge.innerHTML = `👤 <strong>${u.username}</strong>: <code>${u.api_key}</code>`;
+                        badge.onclick = () => {
+                            apiKeyInput.value = u.api_key;
+                            localStorage.setItem('api_key', u.api_key);
+                            updateAuthStatus();
+                            showToast(`Menggunakan API Key ${u.username}`, 'info', '🔑');
+                            fetchPosts();
+                        };
+                        seededList.appendChild(badge);
+                    });
+                }
+            } catch (err) {
+                console.error("Gagal memuat API keys helper:", err);
+                seededList.innerHTML = '<span style="color: var(--accent-error);">Gagal memuat API Keys helper</span>';
+            }
+        }
+
+        // Toast Notification
+        function showToast(message, type = 'info', icon = 'ℹ️') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toast.className = `toast toast-${type} show`;
+            toastMessage.innerText = message;
+            toastIcon.innerText = icon;
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Reset Form completely
+        function resetBlogForm() {
+            form.reset();
+            postIdInput.value = '';
+            imageInput.value = '';
+            previewContainer.style.display = 'none';
+            previewImg.src = '';
+            deleteImageOption.style.display = 'none';
+            deleteImageCheckbox.checked = false;
+            submitBtn.innerText = 'Simpan Postingan';
+            cancelEditBtn.style.display = 'none';
+        }
+
+        cancelEditBtn.addEventListener('click', resetBlogForm);
+
+        // Ambil semua postingan (READ)
+        async function fetchPosts() {
+            const apiKey = getApiKey();
+            try {
+                const res = await fetch(API_URL, {
+                    headers: {
+                        'x-api-key': apiKey
+                    }
+                });
+
+                if (res.status === 401 || res.status === 403) {
+                    authStatusBadge.innerText = 'Ditolak (Key Salah/Kosong)';
+                    authStatusBadge.className = 'badge badge-danger';
+
+                    postsContainer.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🔒</div>
+                            <p>Akses ditolak. Mohon gunakan API Key yang valid untuk melihat dan mengelola postingan.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                if (!res.ok) {
+                    throw new Error("Gagal memuat postingan");
+                }
+
+                const posts = await res.json();
+
+                // Key valid, update badge
+                authStatusBadge.innerText = 'Aktif & Terhubung';
+                authStatusBadge.className = 'badge badge-success';
+                authStatusBadge.style.backgroundColor = '';
+                authStatusBadge.style.color = '';
+
+                if (posts.length === 0) {
+                    postsContainer.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📂</div>
+                            <p>Belum ada postingan blog. Mulai buat sekarang!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                postsContainer.innerHTML = '';
+                posts.forEach(post => {
+                    const card = document.createElement('div');
+                    card.className = 'post-card';
+
+                    let imageHTML = '';
+                    if (post.image) {
+                        imageHTML = `
+                            <div class="post-image-container">
+                                <img src="/uploads/${post.image}" alt="${post.title}" class="post-img">
+                            </div>
+                              const slugHTML = post.slug
+                        ? `<span class="badge" style="background-color: rgba(59, 130, 246, 0.15); color: var(--accent-primary); font-family: monospace; font-size: 0.8rem; cursor: pointer;" onclick="viewDetail('${post.slug}')">🔗 slug: ${post.slug}</span>`
+                        : '';
+                        
+                    const dateFormatted = post.created_at 
+                        ? new Date(post.created_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) 
+                        : 'Baru saja';
+                        
+                    const metaHTML = `
+                        <div style="margin-top: 4px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+                            ${slugHTML}
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">✍️ Oleh: <strong>${post.owned_by || 'Sistem'}</strong></span>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">| 📅 ${dateFormatted}</span>
+                        </div>
+                    `;
+
+                    // Hanya tampilkan tombol aksi edit/hapus jika postingan ini miliknya sendiri
+                    let actionsHTML = '';
+                    if (post.owned_by && post.owned_by === currentUserUsername) {
+                        actionsHTML = `
+                            <div class="post-actions">
+                                <button class="btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;" onclick="editPost(${post.id}, \`${post.title.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, \`${post.content.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, '${post.image || ''}')">Edit</button>
+                                <button class="btn-danger" style="padding: 6px 12px; font-size: 0.85rem;" onclick="deletePost(${post.id})">Hapus</button>
+                            </div>
+                        `;
+                    }
+
+                    card.innerHTML = `
+                        <div class="post-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                            <h3 class="post-title">${post.title}</h3>
+                            ${metaHTML}
+                        </div>
+                        ${imageHTML}
+                        <p class="post-content">${post.content}</p>
+                        ${actionsHTML}
+                    `;
+                    postsContainer.appendChild(card);
+                });
+            } catch (err) {
+                console.error(err);
+                postsContainer.innerHTML = `<div class="empty-state"><p style="color: var(--accent-error);">Terjadi kesalahan koneksi server.</p></div>`;
+            }
+        }
+
+        // Tambah atau Edit postingan (CREATE / UPDATE)
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = postIdInput.value;
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `${API_URL}/${id}` : API_URL;
+            const apiKey = getApiKey();
+
+            // Gunakan FormData untuk mengirim data berupa file
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('content', content);
+
+            const imageFile = imageInput.files[0];
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
+
+            if (id && deleteImageCheckbox.checked) {
+                formData.append('deleteImage', 'true');
+            }
+
+            try {
+                const res = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'x-api-key': apiKey
+                        // Content-Type tidak diisi secara eksplisit agar browser otomatis mengatur boundary multipart/form-data
+                    },
+                    body: formData
+                });
+
+                if (res.status === 401 || res.status === 403) {
+                    showToast('Gagal: API Key tidak sah!', 'error', '❌');
+                    return;
+                }
+
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    throw new Error(errData.error || "Respon server bermasalah");
+                }
+
+                showToast(id ? 'Postingan berhasil diperbarui!' : 'Postingan berhasil disimpan!', 'success', '🎉');
+                resetBlogForm();
+                fetchPosts();
+            } catch (err) {
+                console.error("Detail Error:", err);
+                showToast(`Gagal menyimpan postingan: ${err.message}`, 'error', '⚠️');
+            }
+        });
+
+        // Set form ke mode edit
+        function editPost(id, title, content, imageName) {
+            postIdInput.value = id;
+            document.getElementById('title').value = title;
+            document.getElementById('content').value = content;
+            submitBtn.innerText = 'Perbarui Postingan';
+            cancelEditBtn.style.display = 'inline-block';
+
+            // Clean up preview selection
+            imageInput.value = '';
+            previewContainer.style.display = 'none';
+            previewImg.src = '';
+
+            // Jika post memiliki gambar aktif, tunjukkan opsi untuk menghapusnya
+            if (imageName) {
+                deleteImageOption.style.display = 'flex';
+                deleteImageCheckbox.checked = false;
+            } else {
+                deleteImageOption.style.display = 'none';
+            }
+
+            // Scroll to form smoothly
+            form.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Hapus postingan (DELETE)
+        async function deletePost(id) {
+            if (confirm('Yakin ingin menghapus postingan ini?')) {
+                const apiKey = getApiKey();
+                try {
+                    const res = await fetch(`${API_URL}/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'x-api-key': apiKey
+                        }
+                    });
+
+                    if (res.status === 401 || res.status === 403) {
+                        showToast('Gagal: API Key tidak sah!', 'error', '❌');
+                        return;
+                    }
+
+                    if (!res.ok) {
+                        const errData = await res.json().catch(() => ({}));
+                        throw new Error(errData.error || "Gagal menghapus");
+                    }
+
+                    showToast('Postingan berhasil dihapus!', 'success', '🗑️');
+                    fetchPosts();
+                } catch (err) {
+                    console.error("Detail Error:", err);
+                    showToast(`Gagal menghapus postingan: ${err.message}`, 'error', '⚠️');
+                }
+            }
+        }
+
+        // Lihat detail postingan menggunakan slug (READ single post)
+        async function viewDetail(slug) {
+            const apiKey = getApiKey();
+            try {
+                const res = await fetch(`/api/posts/detail/${slug}`, {
+                    headers: {
+                        'x-api-key': apiKey
+                    }
+                });
+
+                if (res.status === 401 || res.status === 403) {
+                    showToast('Gagal: API Key tidak sah!', 'error', '❌');
+                    return;
+                }
+
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    throw new Error(errData.error || "Gagal memuat detail");
+                }
+
+                const post = await res.json();
+                alert(`Detail Postingan (dari API /api/posts/detail/${slug}):\n\n` +
+                    `ID: ${post.id}\n` +
+                    `Judul: ${post.title}\n` +
+                    `Slug: ${post.slug}\n` +
+                    `Konten: ${post.content}\n` +
+                    `Gambar: ${post.image || 'Tidak ada gambar'}`);
+            } catch (err) {
+                console.error("Detail Error:", err);
+                showToast(`Gagal memuat detail: ${err.message}`, 'error', '⚠️');
+            }
+        }
+    </script>
+</body>
+
+</html>
